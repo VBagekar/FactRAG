@@ -7,14 +7,6 @@ from pathlib import Path
 from typing import Optional
 import wikipediaapi
 
-
-# ─────────────────────────────────────────────
-# 1. DATA CLASS — A single retrievable passage
-#
-# Every chunk becomes a Passage. The retriever will
-# search over these and return the most relevant ones.
-# ─────────────────────────────────────────────
-
 @dataclass
 class Passage:
     id: str           # unique ID e.g. "india_0", "india_1"
@@ -23,14 +15,6 @@ class Passage:
     word_count: int   # number of words in this chunk
     source_url: str   # Wikipedia URL for citation
 
-
-# ─────────────────────────────────────────────
-# 2. WIKIPEDIA TOPICS TO FETCH
-#
-# These are grouped by domain so our corpus covers
-# the kinds of factual/numerical questions we want
-# to answer: geography, science, economics, sports.
-# ─────────────────────────────────────────────
 
 TOPICS = {
     "geography": [
@@ -57,21 +41,7 @@ TOPICS = {
 }
 
 
-# ─────────────────────────────────────────────
-# 3. TEXT CHUNKER
-#
-# Algorithm:
-#   - Tokenize text into words
-#   - Slide a window of `chunk_size` words
-#   - Advance by `stride` words each step
-#   - stride < chunk_size → creates overlap
-#
-# Example with chunk_size=10, stride=5:
-#   words = [w1, w2, ..., w20]
-#   chunk1 = w1..w10
-#   chunk2 = w6..w15   ← overlaps by 5 words
-#   chunk3 = w11..w20
-# ─────────────────────────────────────────────
+
 
 def _chunk_text(text: str,
                 chunk_size: int = 100,
@@ -105,9 +75,6 @@ def _chunk_text(text: str,
     return chunks
 
 
-# ─────────────────────────────────────────────
-# 4. WIKIPEDIA FETCHER
-# ─────────────────────────────────────────────
 
 def _fetch_article(wiki: wikipediaapi.Wikipedia,
                    title: str) -> Optional[str]:
@@ -121,10 +88,6 @@ def _fetch_article(wiki: wikipediaapi.Wikipedia,
         return None
     return page.text
 
-
-# ─────────────────────────────────────────────
-# 5. CORPUS BUILDER — MAIN FUNCTION
-# ─────────────────────────────────────────────
 
 def build_corpus(output_path: str = "data/corpus.json",
                  chunk_size: int = 100,
@@ -140,8 +103,7 @@ def build_corpus(output_path: str = "data/corpus.json",
     Returns:
         List of Passage objects
     """
-    # Initialize Wikipedia API
-    # The user_agent is required by Wikipedia's API terms of service
+    
     wiki = wikipediaapi.Wikipedia(
         user_agent="FactRAG/1.0 (research project)",
         language="en",
